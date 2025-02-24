@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server";
+import prisma from "@/utils/prisma/client";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -19,21 +20,24 @@ export async function GET(request: Request) {
       }
 
       // Check if user exists in user_profiles table
-      const { data: existingUser } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("email", data?.user?.email)
-        .limit(1)
-        .single();
+      const existingUser = await prisma.userProfile.findUnique({
+        where: {
+          email: data?.user?.email,
+        },
+      });
 
       if (!existingUser) {
-        // Insert the new user into the user_profiles table
-        const { error: dbError } = await supabase.from("user_profiles").insert({
-          email: data?.user?.email,
-          username: data?.user?.user_metadata?.user_name,
-        });
-
-        if (dbError) {
+        try {
+          // Insert the new user into the user_profiles table
+          await prisma.userProfile.create({
+            data: {
+              id: data?.user?.id as string,
+              email: data?.user?.email as string,
+              username: data?.user?.user_metadata?.username,
+            },
+          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (dbError: any) {
           console.error("Error inserting user data:", dbError.message);
           return NextResponse.redirect(`${origin}/error`);
         }

@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model UserProfile {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  username String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents       Document[]       @relation("UserDocuments")
+  sharedDocuments DocumentShare[]  @relation("UserSharedDocuments")
+
+  @@map("user_profiles")
+}
+
+model Document {
+  id          String         @id @default(cuid())
+  content     String         // This will store the document content, possibly in a JSON format for rich text
+  ownerId     String
+  owner       UserProfile    @relation("UserDocuments", fields: [ownerId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  shares      DocumentShare[]
+  version     Int            @default(1)  // Add version tracking
+  lastEditedBy String?       // Track last editor
+
+  @@map("documents")
+}
+
+model DocumentShare {
+  id          String       @id @default(cuid())
+  documentId  String
+  document    Document     @relation(fields: [documentId], references: [id])
+  userId      String
+  user        UserProfile  @relation("UserSharedDocuments", fields: [userId], references: [id])
+
+  @@map("document_shares")
+  @@unique([documentId, userId]) // Ensures a user can only have one share per document
+}
+

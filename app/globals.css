@@ -19,3 +19,70 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* quill-overrides.css */
+
+/* 1. Make the toolbar background and text/icons white (on a dark background). */
+.ql-toolbar.ql-snow {
+  background-color: transparent; /* or match your page’s dark background */
+  border: none !important; /* remove the default border */
+  color: #fff !important; /* ensure text is white */
+}
+
+/* Quill icons (stroke/fill) for all toolbar buttons. */
+.ql-toolbar.ql-snow .ql-stroke {
+  stroke: #fff;
+}
+.ql-toolbar.ql-snow .ql-fill {
+  fill: #fff;
+}
+.ql-toolbar.ql-snow .ql-picker {
+  color: #fff !important;
+}
+
+/* 2. Remove borders around the editor container. */
+.ql-container.ql-snow {
+  border: none !important;
+  background-color: #222; /* set editor's background color for dark mode */
+}
+
+/* 3. Optional: remove any outline or border the editor might have. */
+.ql-container.ql-snow .ql-editor {
+  border: none !important;
+  min-height: 150px; /* give some space to type in */
+  padding: 1rem; /* optional padding inside the editor */
+}
+
+/* 4. Adjust placeholder color if needed (default might be dark or grey). */
+.ql-editor::before {
+  color: #bbb; /* light grey placeholder text for dark mode */
+}
+
+/* 1. Style the picker label (the top-level dropdown button) */
+.ql-toolbar.ql-snow .ql-picker-label {
+  background-color: #333 !important; /* or your preferred dark color */
+  color: #fff !important;
+}
+
+/* 2. Style the dropdown panel */
+.ql-toolbar.ql-snow .ql-picker-options {
+  background-color: #222 !important; /* the panel's background */
+  border: 1px solid #444; /* optional: a subtle border */
+}
+
+/* 3. Style the picker items (the headings inside the dropdown) */
+.ql-toolbar.ql-snow .ql-picker-item {
+  color: #fff !important; /* headings in the dropdown */
+}
+
+/* 4. Highlight on hover */
+.ql-toolbar.ql-snow .ql-picker-options .ql-picker-item:hover {
+  /* background-color: #555 !important; */
+  color: #007bff !important;
+}
+
+/* 5. Also style the currently-selected item */
+.ql-toolbar.ql-snow .ql-picker-item.ql-selected {
+  background-color: #444 !important;
+  color: #fff !important;
+}

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
-import { userAgent } from "next/server";
+import prisma from "@/utils/prisma/client";
 
 export async function getUserSession() {
   const supabase = await createClient();
@@ -68,21 +68,23 @@ export async function signIn(formData: FormData) {
     };
   }
 
-  const { data: existingUser } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .eq("email", credentials?.email)
-    .limit(1)
-    .single();
+  const existingUser = await prisma.userProfile.findUnique({
+    where: {
+      email: credentials.email,
+    },
+  });
 
   if (!existingUser) {
-    const { error: insertError } = await supabase.from("user_profiles").insert({
-      email: data?.user.email,
-      username: data?.user?.user_metadata?.username,
+    const newUser = await prisma.userProfile.create({
+      data: {
+        id: data?.user?.id as string,
+        email: data?.user?.email as string,
+        username: data?.user?.user_metadata?.username,
+      },
     });
-    if (insertError) {
+    if (!newUser) {
       return {
-        status: insertError?.message,
+        status: "Failed to create user profile",
         user: null,
       };
     }
